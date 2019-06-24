@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import Signup from './user/containers/Signup';
+import Login from './user/containers/Login';
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
     <Router>
       <Switch>
         <Route path="/user/signup" component={Signup}/>
+        <Route path="/user/login" component={Login}/>
       </Switch>
     </Router>
   );

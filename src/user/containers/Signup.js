@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import SignupForm from '../components/SignupForm';
-import axios  from 'axios';
+import { message, Spin} from 'antd';
+import axios from 'axios';
 
 class Signup extends Component {
 
-  constructor(){
+  constructor() {
     super();
     this.state = {
-      firstName:'',
+      loading: false,
+      firstName: '',
       lastName: '',
       email: '',
       password: '',
@@ -19,7 +21,7 @@ class Signup extends Component {
 
   handleInputFieldChange = (event) => {
     this.setState({
-      [event.target.name]:event.target.value
+      [event.target.name]: event.target.value
     })
   }
 
@@ -27,45 +29,56 @@ class Signup extends Component {
   handleSelectFieldChange = (value, fieldName) => {
     console.log("value", value, fieldName)
     this.setState({
-      [fieldName]:value
+      [fieldName]: value
     })
   }
 
   handleFileFieldChange = (event) => {
     this.setState({
-      avatar:event.target.files[0]
+      avatar: event.target.files[0]
     })
   }
 
 
   signupFormHandler = () => {
+    this.setState({
+      loading: true
+    });
+    const { history } = this.props;
     const userData = this.state;
     const formData = new FormData();
-    for(let key in userData){
+    for (let key in userData) {
       formData.append(key, userData[key]);
     }
     axios.post("http://localhost:5000/api/users", formData)
-    .then((response)=> {
-      console.log("responser", response)
-    }).catch((error)=>{
-      console.log("error", error)
-    })
+      .then((response) => {
+        this.setState({
+          loading: false
+        });
+        history.push("/user/login")
+        message.success("You have sauccessfully created your account");
+      }).catch((error) => {
+        this.setState({
+          loading: false
+        });
+        message.success("Failed");
+      })
 
   }
 
 
-  render(){
+  render() {
     console.log("state", this.state)
+    const { loading } = this.state;
     return (
-      <div>
-        hello
-        <SignupForm  
+      <Spin spinning={loading}>
+        <SignupForm
           handleInputFieldChange={this.handleInputFieldChange}
           handleSelectFieldChange={this.handleSelectFieldChange}
           handleFileFieldChange={this.handleFileFieldChange}
           signupFormHandler={this.signupFormHandler}
         />
-      </div>
+      </Spin>
     )
   }
 }
