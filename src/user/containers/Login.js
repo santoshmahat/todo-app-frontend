@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { Spin } from 'antd';
 import { connect } from 'react-redux';
 import axios  from 'axios';
+import jwtDecode from 'jwt-decode';
 import LoginForm from '../components/LoginForm';
+import actions from '../redux/actions';
 
 class Login extends Component {
 
@@ -26,9 +28,14 @@ class Login extends Component {
     console.log("login prop", this.props)
     axios.post("http://localhost:5000/api/users/login", this.state)
     .then((response)=> {
+
+      const { token } = response.data;
+      window.localStorage.setItem("token", token);
+      const user = jwtDecode(token);
+      console.log("user", user)
       dispatch({
-        type:"user/LOGIN_USER",
-        payload:response.data,
+        type:actions.LOAD_CURRENT_ACCOUNT,
+        payload:user,
       })
       history.push("/")
 
@@ -67,3 +74,6 @@ return {
   user:store.user
 }
 }, (dispatch)=>({dispatch}))(Login);
+
+
+
