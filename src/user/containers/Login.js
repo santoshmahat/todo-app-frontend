@@ -46,7 +46,7 @@ class Login extends Component {
   }
 
   render(){
-    console.log("login prop", this.props)
+    console.log("login prop", this.props.user)
     const { loading } = this.state;
     return (
       <Spin spinning={loading}>
