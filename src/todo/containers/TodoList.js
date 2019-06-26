@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
-import { Table } from 'antd';
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { Table, Spin } from 'antd';
 import axios from 'axios';
+import actions from '../redux/actions';
 
 class TodoList extends Component {
 
-
+  constructor() {
+    super();
+    this.state = {
+      loading: false
+    }
+  }
   columns = [
     {
       title: "Title",
@@ -22,29 +30,54 @@ class TodoList extends Component {
 
 
   componentDidMount() {
-
+    this.fetchTodoList();
   }
 
   fetchTodoList = () => {
+    const { dispatch } = this.props;
+    this.setState({
+      loading: true
+    })
     axios.get("http://localhost:5000/api/todos")
       .then((response) => {
-        console.log("response", response)
+        this.setState({loading: false})
+        dispatch({
+          type: actions.FETCH_TODO_LIST,
+          payload: response.data.todos
+        })
       }).catch((error) => {
+        this.setState({loading: false})
         console.log("error", error)
       })
   }
 
   render() {
+    console.log("todos", this.props.todo)
+    const { todo: { todos } } = this.props;
+    const { loading } = this.state;
     return (
-      <div>
+      <Spin spinning={loading}>
         <h2>Todo List Table</h2>
+        <Link to="/todo/add">Add New Todo</Link>
         <Table
           columns={this.columns}
-          dataSource={[]}
+          dataSource={todos}
         />
-      </div>
+      </Spin>
     )
   }
 }
 
-export default TodoList;
+const mapStateToProps = (store) => {
+  return {
+    todo: store.todo
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    dispatch: dispatch
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(TodoList);

@@ -3,14 +3,27 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
+import jwtDecode from 'jwt-decode';
 import * as serviceWorker from './serviceWorker';
 import 'antd/dist/antd.min.css'
+import actions from './user/redux/actions';
 import rootReducer from './reducers';
 
 
 // To create store which takes one argument as reducer and compulsory which is
 // a javascript function and other argruments which are for middlewares
 const store = createStore(rootReducer)
+
+const token = window.localStorage.getItem("token")
+if(token){
+  alert("hi")
+  const user = jwtDecode(token);
+  store.dispatch({
+    type:actions.LOAD_CURRENT_ACCOUNT,
+    payload:user
+  })
+
+}
 
 ReactDOM.render(
   <Provider store={store}>

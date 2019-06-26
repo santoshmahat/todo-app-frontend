@@ -1,26 +1,31 @@
-import React, { Component} from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import React, { Component } from 'react';
+import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import Signup from './user/containers/Signup';
 import { connect } from 'react-redux';
 import Login from './user/containers/Login';
 import TodoList from './todo/containers/TodoList';
+import CreateTodo from './todo/containers/CreateTodo';
 
 
 const publicRoutes = [
   {
-    path:"/user/signup",
-    component:Signup
+    path: "/user/signup",
+    component: Signup
   },
   {
-    path:"/user/login",
-    component:Login
+    path: "/user/login",
+    component: Login
   }
 ]
 
 const privateRoutes = [
   {
-    path:"/",
-    component:TodoList
+    path: "/",
+    component: TodoList
+  },
+  {
+    path: "/todo/add",
+    component: CreateTodo
   }
 ]
 
@@ -28,12 +33,29 @@ const privateRoutes = [
 class App extends Component {
   render() {
     console.log("routes users", this.props.user)
+    const { authorized } = this.props.user.user;
+    console.log("authorized", authorized)
     return (
       <Router>
         <Switch>
-          <Route path="/" component={TodoList} />
-          <Route path="/user/signup" component={Signup} />
-          <Route path="/user/login" component={Login} />
+          {publicRoutes.map((publicRoute, index) => (
+            <Route  key={index} exact path={publicRoute.path} component={publicRoute.component} />
+          ))}
+          {privateRoutes.map(({path, component:Component}, index) => (
+            <Route
+              key={index}
+              exact
+              path={path}
+              render={(props) => {
+                if(authorized){
+                  return <Component {...props} />
+                }else {
+                  return <Redirect to="/user/login" />
+                }
+              }}
+            />
+          ))}
+
         </Switch>
       </Router>
     );
@@ -41,13 +63,9 @@ class App extends Component {
 }
 
 const mapStateToProps = (store) => {
-   return {
-     user:store.user
-   }
-} 
-
-const mapDispatchToProps = () => {
-
+  return {
+    user: store.user
+  }
 }
 
 export default connect(mapStateToProps, {})(App);
