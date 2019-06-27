@@ -1,33 +1,31 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { Table, Spin } from 'antd';
-import axios from 'axios';
-import actions from '../redux/actions';
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import { Table, Spin } from "antd";
+import axios from "axios";
+import actions from "../redux/actions";
 
 class TodoList extends Component {
-
   constructor() {
     super();
     this.state = {
       loading: false
-    }
+    };
   }
   columns = [
     {
       title: "Title",
-      dataIndex: "title",
+      dataIndex: "title"
     },
     {
       title: "Description",
-      dataIndex: "description",
+      dataIndex: "description"
     },
     {
       title: "Date",
-      dataIndex: "date",
+      dataIndex: "date"
     }
   ];
-
 
   componentDidMount() {
     this.fetchTodoList();
@@ -37,47 +35,57 @@ class TodoList extends Component {
     const { dispatch } = this.props;
     this.setState({
       loading: true
-    })
-    axios.get("http://localhost:5000/api/todos")
-      .then((response) => {
-        this.setState({loading: false})
+    });
+    const token = window.localStorage.getItem("token");
+    console.log("TOKEN", token);
+
+    const config = {
+      headers: { Authorization: token }
+    };
+    axios
+      .get("http://localhost:5000/api/todos", config)
+      .then(response => {
+        this.setState({ loading: false });
         dispatch({
           type: actions.FETCH_TODO_LIST,
           payload: response.data.todos
-        })
-      }).catch((error) => {
-        this.setState({loading: false})
-        console.log("error", error)
+        });
       })
-  }
+      .catch(error => {
+        this.setState({ loading: false });
+        console.log("error", error);
+      });
+  };
 
   render() {
-    console.log("todos", this.props.todo)
-    const { todo: { todos } } = this.props;
+    console.log("todos", this.props.todo);
+    const {
+      todo: { todos }
+    } = this.props;
     const { loading } = this.state;
     return (
       <Spin spinning={loading}>
         <h2>Todo List Table</h2>
         <Link to="/todo/add">Add New Todo</Link>
-        <Table
-          columns={this.columns}
-          dataSource={todos}
-        />
+        <Table columns={this.columns} dataSource={todos} />
       </Spin>
-    )
+    );
   }
 }
 
-const mapStateToProps = (store) => {
+const mapStateToProps = store => {
   return {
     todo: store.todo
-  }
-}
+  };
+};
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
   return {
     dispatch: dispatch
-  }
-}
+  };
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(TodoList);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(TodoList);
