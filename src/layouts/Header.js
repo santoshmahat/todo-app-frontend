@@ -16,9 +16,6 @@ class Header extends Component {
           <Menu.Item key="1">
             <Link to="/">Todo</Link>
           </Menu.Item>
-          <Menu.Item key="2">
-            <Link to="/users">User</Link>
-          </Menu.Item>
         </Menu>
       </Layout.Header>
     )
