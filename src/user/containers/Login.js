@@ -1,79 +1,78 @@
-import React, { Component } from 'react';
-import { Spin } from 'antd';
-import { connect } from 'react-redux';
-import axios  from 'axios';
-import jwtDecode from 'jwt-decode';
-import LoginForm from '../components/LoginForm';
-import actions from '../redux/actions';
+import React, { Component } from "react";
+import { Spin } from "antd";
+import { connect } from "react-redux";
+import axios from "axios";
+import jwtDecode from "jwt-decode";
+import LoginForm from "../components/LoginForm";
+import actions from "../redux/actions";
+import { Field, reduxForm } from "redux-form";
 
 class Login extends Component {
-
-  constructor(){
+  constructor() {
     super();
     this.state = {
-      loading:false,
-      email:'',
-      password:''
-    }
+      loading: false
+    };
   }
 
-  handleInputFieldChange = (event) => {
-    this.setState({
-      [event.target.name]:event.target.value
-    })
-  }
-
-  loginHandler = () => {
+  loginHandler = data => {
     const { dispatch, history } = this.props;
-    console.log("login prop", this.props)
-    axios.post("http://localhost:5000/api/users/login", this.state)
-    .then((response)=> {
-
-      const { token } = response.data;
-      window.localStorage.setItem("token", token);
-      const user = jwtDecode(token);
-      console.log("user", user)
-      dispatch({
-        type:actions.LOAD_CURRENT_ACCOUNT,
-        payload:user,
+    console.log("DATA", data);
+    axios
+      .post("http://localhost:5000/api/users/login", data)
+      .then(response => {
+        const { token } = response.data;
+        window.localStorage.setItem("token", token);
+        const user = jwtDecode(token);
+        console.log("user", user);
+        dispatch({
+          type: actions.LOAD_CURRENT_ACCOUNT,
+          payload: user
+        });
+        history.push("/");
       })
-      history.push("/")
+      .catch(error => {
+        console.log("error", error);
+      });
+  };
 
-    }).catch((error)=> {
-      console.log("error", error)
-    })
+  // onClickButton = data => {
+  //   console.log("CLICK", data);
+  // };
 
-  }
-
-  render(){
-    console.log("login prop", this.props.user)
+  render() {
+    const { handleSubmit } = this.props;
     const { loading } = this.state;
     return (
       <Spin spinning={loading}>
-        <LoginForm 
+        <LoginForm
           handleInputFieldChange={this.handleInputFieldChange}
-          loginHandler={this.loginHandler}
+          loginHandler={handleSubmit(this.loginHandler)}
         />
+        {/* 
+        <div>
+          <label htmlFor="Email">Email</label>
+          <Field name="email" component="input" type="text" />
+        </div>
+        <div>
+          <label htmlFor="Passwor">Password</label>
+          <Field name="password" component="input" type="text" />
+        </div>
+        <button onClick={handleSubmit(this.loginHandler)}>Submit</button> */}
       </Spin>
-    )
+    );
   }
 }
 
-// const mapStateToProps = (store)  => {
+const loginFormConnect = reduxForm({
+  form: "Login"
+})(Login);
 
-// }
-
-// const mapDispatchToProps = (dispatch) => {
-//   return { 
-//     dispatch:dispatch
-//   }
-// }
-
-export default connect((store)=> {
-return {
-  user:store.user
-}
-}, (dispatch)=>({dispatch}))(Login);
-
-
-
+export default connect(
+  store => {
+    return {
+      user: store.user
+    };
+  },
+  dispatch => ({ dispatch })
+)(loginFormConnect);
