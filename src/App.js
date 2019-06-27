@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import Login from './user/containers/Login';
 import TodoList from './todo/containers/TodoList';
 import CreateTodo from './todo/containers/CreateTodo';
+import MainLayout from './layouts/Main';
+import PageNotFound from './PageNotFound';
 
 
 const publicRoutes = [
@@ -37,26 +39,28 @@ class App extends Component {
     console.log("authorized", authorized)
     return (
       <Router>
-        <Switch>
-          {publicRoutes.map((publicRoute, index) => (
-            <Route  key={index} exact path={publicRoute.path} component={publicRoute.component} />
-          ))}
-          {privateRoutes.map(({path, component:Component}, index) => (
-            <Route
-              key={index}
-              exact
-              path={path}
-              render={(props) => {
-                if(authorized){
-                  return <Component {...props} />
-                }else {
-                  return <Redirect to="/user/login" />
-                }
-              }}
-            />
-          ))}
-
-        </Switch>
+        <MainLayout>
+          <Switch>
+            {publicRoutes.map((publicRoute, index) => (
+              <Route key={index} exact path={publicRoute.path} component={publicRoute.component} />
+            ))}
+            {privateRoutes.map(({ path, component: Component }, index) => (
+              <Route
+                key={index}
+                exact
+                path={path}
+                render={(props) => {
+                  if (authorized) {
+                    return <Component {...props} />
+                  } else {
+                    return <Redirect to="/user/login" />
+                  }
+                }}
+              />
+            ))}
+            <Route component={PageNotFound} />
+          </Switch>
+        </MainLayout>
       </Router>
     );
   }
